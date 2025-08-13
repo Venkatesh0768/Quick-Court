@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: QuickCourt-Backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/odoo
+    username: root
+    password: Realme6G90T
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
