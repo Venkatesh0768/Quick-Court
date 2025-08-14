@@ -12,22 +12,15 @@ import java.util.stream.Collectors;
 @Service
 public class UserServices {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     public UserServices(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public List<UserResponseDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
     }
 
-    public Optional<UserResponseDto> getUserById(String id) {
-        Optional<User> user = Optional.ofNullable(userRepository.findUserById(id));
-        return user.map(this::convertToDto);
-    }
 
     public Optional<User> updateUser(String id, User user) {
         Optional<User> existingUser = Optional.ofNullable(userRepository.findUserById(id));
@@ -53,33 +46,12 @@ public class UserServices {
         return false;
     }
 
-    private UserResponseDto convertToDto(User user) {
-        List<UserResponseDto.FacilitySummaryDto> facilitySummaries = null;
-        if (user.getOwnedFacilities() != null) {
-            facilitySummaries = user.getOwnedFacilities().stream()
-                    .map(facility -> UserResponseDto.FacilitySummaryDto.builder()
-                            .id(facility.getId())
-                            .name(facility.getName())
-                            .address(facility.getAddress())
-                            .city(facility.getCity())
-                            .state(facility.getState())
-                            .zipCode(facility.getZipCode())
-                            .build())
-                    .collect(Collectors.toList());
+
+    public Optional<User> getUserById(String userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()){
+            return user;
         }
-
-        return UserResponseDto.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole().name())
-                .profilePictureUrl(user.getProfilePictureUrl())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .ownedFacilities(facilitySummaries)
-                .build();
+        throw  new RuntimeException("No User Found");
     }
-
 }

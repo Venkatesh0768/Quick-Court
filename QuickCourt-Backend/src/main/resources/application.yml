@@ -3,7 +3,7 @@ spring:
     name: QuickCourt-Backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/odoo
+    url: jdbc:mysql://localhost:3306/quickcourt
     username: root
     password: Realme6G90T
 

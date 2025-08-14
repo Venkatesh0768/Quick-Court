@@ -1,8 +1,8 @@
 package org.example.quickcourtbackend.controllers;
 
 import org.example.quickcourtbackend.models.User;
-import org.example.quickcourtbackend.dtos.UserResponseDto;
 import org.example.quickcourtbackend.services.UserServices;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +21,14 @@ public class UserController {
 
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        List<UserResponseDto> users = userServices.getAllUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userServices.getAllUsers();
+        return new ResponseEntity<>(users , HttpStatus.OK);
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable String user_id) {
-        Optional<UserResponseDto> user = userServices.getUserById(user_id);
+    public ResponseEntity<User> getUserById(@PathVariable String user_id) {
+        Optional<User> user = userServices.getUserById(user_id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 

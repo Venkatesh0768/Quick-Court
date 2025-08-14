@@ -1,7 +1,7 @@
 package org.example.quickcourtbackend.controllers;
 
-import org.example.quickcourtbackend.dtos.MatchRequestDTO;
 import org.example.quickcourtbackend.dtos.MatchResponseDTO;
+import org.example.quickcourtbackend.models.Match;
 import org.example.quickcourtbackend.services.MatchService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,18 +20,18 @@ public class MatchController {
     }
 
     @PostMapping
-    public ResponseEntity<MatchResponseDTO> createMatch(@RequestBody MatchRequestDTO dto) {
-        MatchResponseDTO response = matchService.createMatch(dto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<Match> createMatch(@RequestBody Match match) {
+        Match created = matchService.createMatch(match);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<MatchResponseDTO>> getAllMatches() {
+    public ResponseEntity<List<Match>> getAllMatches() {
         return ResponseEntity.ok(matchService.getAllMatches());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MatchResponseDTO> getMatchById(@PathVariable String id) {
+    public ResponseEntity<Match> getMatchById(@PathVariable String id) {
         return ResponseEntity.ok(matchService.getMatchById(id));
     }
 

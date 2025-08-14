@@ -2,6 +2,7 @@ package org.example.quickcourtbackend.controllers;
 
 import org.example.quickcourtbackend.dtos.BookingRequestDto;
 import org.example.quickcourtbackend.dtos.BookingResponseDto;
+import org.example.quickcourtbackend.models.Booking;
 import org.example.quickcourtbackend.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +30,8 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookingResponseDto>> getAllBookings() {
-        List<BookingResponseDto> bookings = bookingService.getAllBookings();
+    public ResponseEntity<List<Booking>> getAllBookings() {
+        List<Booking> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
     }
 

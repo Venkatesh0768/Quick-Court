@@ -1,6 +1,10 @@
 package org.example.quickcourtbackend.dtos;
 
 import lombok.*;
+import org.example.quickcourtbackend.models.Booking;
+import org.example.quickcourtbackend.models.Facility;
+import org.example.quickcourtbackend.models.Match;
+import org.example.quickcourtbackend.models.Review;
 
 import java.util.Date;
 import java.util.List;
@@ -18,23 +22,8 @@ public class UserResponseDto {
     private String email;
     private String role;
     private String profilePictureUrl;
-    private Date createdAt;
-    private Date updatedAt;
-    
-    // Only include basic facility info to prevent infinite recursion
-    private List<FacilitySummaryDto> ownedFacilities;
-    
-    @Setter
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class FacilitySummaryDto {
-        private String id;
-        private String name;
-        private String address;
-        private String city;
-        private String state;
-        private String zipCode;
-    }
+    private List<Facility> ownedFacilities;
+    private List<Booking> bookings;
+    private List<Match> createdMatches;
+    private List<Review> reviews;
 }

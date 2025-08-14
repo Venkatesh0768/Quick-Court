@@ -52,11 +52,8 @@ public class BookingService {
     }
 
 
-    public List<BookingResponseDto> getAllBookings() {
-        return bookingRepository.findAll()
-                .stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 
 

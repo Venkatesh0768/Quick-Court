@@ -1,5 +1,7 @@
 package org.example.quickcourtbackend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.VerificationStatus;
@@ -15,6 +17,7 @@ import java.util.List;
 public class Facility extends BaseModel {
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
@@ -42,8 +45,12 @@ public class Facility extends BaseModel {
     @Column(nullable = false)
     private VerificationStatus verificationStatus;
 
+    @JsonManagedReference
+
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
+
+    @JsonManagedReference
 
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
