@@ -1,18 +1,14 @@
 package org.example.quickcourtbackend.models;
 
-<<<<<<<HEAD
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-=======
-        >>>>>>>feature/frontend
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.BookingStatus;
 import org.example.quickcourtbackend.enums.PaymentStatus;
 
-<<<<<<<HEAD
-        =======
 
-        >>>>>>>feature/frontend
 import java.time.LocalDate;
 import java.time.LocalTime;
 
