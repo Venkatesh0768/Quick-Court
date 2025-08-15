@@ -1,5 +1,8 @@
 package org.example.quickcourtbackend.models;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.BookingStatus;
@@ -19,10 +22,12 @@ public class Booking extends BaseModel {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)
+    @JsonIgnore
     private Court court;
 
     @Column(nullable = false)

@@ -1,5 +1,6 @@
 package org.example.quickcourtbackend.models;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,12 +18,14 @@ public class Review extends BaseModel {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+
     @JsonIgnore
+
     private User user;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "facility_id", nullable = false)
-    @JsonIgnore
     private Facility facility;
 
     @Column(nullable = false)

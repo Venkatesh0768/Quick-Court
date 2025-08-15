@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.UserRole;
 
-
 import java.util.List;
 
 @Entity
@@ -30,6 +29,7 @@ public class User extends BaseModel {
 
     @Column(nullable = false)
     private String phoneNumber;
+
 
     private String profilePictureUrl;
 

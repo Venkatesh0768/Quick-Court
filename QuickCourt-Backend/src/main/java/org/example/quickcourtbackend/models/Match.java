@@ -1,10 +1,11 @@
 package org.example.quickcourtbackend.models;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.MatchStatus;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 

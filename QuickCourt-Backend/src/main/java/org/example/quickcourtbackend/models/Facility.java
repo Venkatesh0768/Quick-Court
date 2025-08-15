@@ -1,5 +1,6 @@
 package org.example.quickcourtbackend.models;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -45,12 +46,11 @@ public class Facility extends BaseModel {
     @Column(nullable = false)
     private VerificationStatus verificationStatus;
 
-    @JsonManagedReference
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
 
-    @JsonManagedReference
 
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
