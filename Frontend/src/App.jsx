@@ -1,8 +1,22 @@
 import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
+import OtpPage from './pages/OtpPage'
+import ProfilePage from './pages/ProfilePage'
 
 function App() {
   return (
-    <div>App</div>
+    <div>
+      <Routes>
+          <Route path='/' element={<HomePage/>}></Route>
+          <Route path='/profile' element={<ProfilePage/>}></Route>
+          <Route path='/login' element={<LoginPage/>}></Route>
+          <Route path='/signup' element={<SignupPage/>}></Route>
+          <Route path='/send/otp' element={<OtpPage/>}></Route>
+      </Routes>
+    </div>
   )
 }
 
