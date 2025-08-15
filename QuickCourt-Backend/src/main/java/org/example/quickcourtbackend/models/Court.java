@@ -1,17 +1,13 @@
 package org.example.quickcourtbackend.models;
 
-<<<<<<< HEAD
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-=======
->>>>>>> feature/frontend
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.SportType;
 
-<<<<<<< HEAD
-=======
 
->>>>>>> feature/frontend
 import java.util.List;
 
 @Entity
@@ -23,10 +19,7 @@ import java.util.List;
 public class Court extends BaseModel {
 
     @ManyToOne
-<<<<<<< HEAD
     @JsonIgnore
-=======
->>>>>>> feature/frontend
     @JoinColumn(name = "facility_id", nullable = false)
     private Facility facility;
 

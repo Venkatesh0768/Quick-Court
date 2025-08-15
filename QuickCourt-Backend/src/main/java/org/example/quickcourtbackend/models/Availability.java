@@ -15,17 +15,11 @@ import java.time.LocalTime;
 @Setter
 @Builder
 public class Availability extends BaseModel {
-<<<<<<< HEAD
 
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;
 
-=======
-    @ManyToOne
-    @JoinColumn(name = "court_id", nullable = false)
-    private Court court;
->>>>>>> feature/frontend
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
