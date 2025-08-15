@@ -75,18 +75,18 @@ public class AuthService{
         return savedUser;
     }
 
-    public Boolean validateUser(LoginRequestDto userDto, HttpServletResponse response) {
+    public Optional<User> validateUser(LoginRequestDto userDto, HttpServletResponse response) {
         log.info("Validating user login for email: {}", userDto.getEmail());
-        
+        Optional<User> user = userRepository.findByEmail(userDto.getEmail());
         // Validate input
         if (!userDto.isValid()) {
             log.warn("Invalid login request data for email: {}", userDto.getEmail());
-            return false;
+            throw new RuntimeException("Invalid login request data for email");
         }
         
         if (!userDto.isEmailValid()) {
             log.warn("Invalid email format for login: {}", userDto.getEmail());
-            return false;
+            throw new RuntimeException("Invalid email format for login");
         }
         
         try {
@@ -108,15 +108,14 @@ public class AuthService{
 
                 response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 log.info("User login successful for email: {}", userDto.getEmail());
-                return true;
+                return user;
             }
         } catch (BadCredentialsException e) {
             log.warn("Invalid credentials for email: {}", userDto.getEmail());
         } catch (Exception e) {
             log.error("Authentication error for email: {}", userDto.getEmail(), e);
         }
-
-        return false;
+        throw new RuntimeException("Invalid login request data for email");
     }
     
     public String initiateOtpLogin(String email) {
