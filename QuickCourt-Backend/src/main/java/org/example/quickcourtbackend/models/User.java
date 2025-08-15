@@ -15,12 +15,22 @@ import java.util.List;
 @Builder
 public class User extends BaseModel {
 
-
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
+
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String phoneNumber;
+
+
     private String profilePictureUrl;
 
     @Enumerated(EnumType.STRING)

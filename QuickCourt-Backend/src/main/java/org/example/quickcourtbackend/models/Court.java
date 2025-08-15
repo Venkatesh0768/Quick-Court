@@ -1,9 +1,12 @@
 package org.example.quickcourtbackend.models;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.SportType;
+
 
 import java.util.List;
 
