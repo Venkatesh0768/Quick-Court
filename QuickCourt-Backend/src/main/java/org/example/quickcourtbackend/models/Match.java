@@ -1,10 +1,17 @@
 package org.example.quickcourtbackend.models;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonIgnore;
+=======
+>>>>>>> feature/frontend
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.MatchStatus;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> feature/frontend
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -18,12 +25,18 @@ import java.time.LocalTime;
 public class Match extends BaseModel {
 
     @ManyToOne
+<<<<<<< HEAD
     @JsonIgnore
+=======
+>>>>>>> feature/frontend
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
     @ManyToOne
+<<<<<<< HEAD
     @JsonIgnore
+=======
+>>>>>>> feature/frontend
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;
 

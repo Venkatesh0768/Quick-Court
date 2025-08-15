@@ -1,11 +1,18 @@
 package org.example.quickcourtbackend.models;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonIgnore;
+=======
+>>>>>>> feature/frontend
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.BookingStatus;
 import org.example.quickcourtbackend.enums.PaymentStatus;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> feature/frontend
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -19,12 +26,18 @@ public class Booking extends BaseModel {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+<<<<<<< HEAD
     @JsonIgnore
+=======
+>>>>>>> feature/frontend
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)
+<<<<<<< HEAD
     @JsonIgnore
+=======
+>>>>>>> feature/frontend
     private Court court;
 
     @Column(nullable = false)

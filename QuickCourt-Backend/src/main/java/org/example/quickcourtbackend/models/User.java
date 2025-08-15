@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.quickcourtbackend.enums.UserRole;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> feature/frontend
 import java.util.List;
 
 @Entity
@@ -15,12 +19,30 @@ import java.util.List;
 @Builder
 public class User extends BaseModel {
 
+<<<<<<< HEAD
 
     private String firstName;
     private String lastName;
     private String email;
     private String password;
     private String phoneNumber;
+=======
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String phoneNumber;
+
+>>>>>>> feature/frontend
     private String profilePictureUrl;
 
     @Enumerated(EnumType.STRING)
