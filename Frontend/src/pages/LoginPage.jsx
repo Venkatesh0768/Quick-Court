@@ -12,18 +12,18 @@ function LoginPage() {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  
+
   const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
-    
+
     if (validationErrors[id]) {
       setValidationErrors({ ...validationErrors, [id]: "" });
     }
@@ -31,90 +31,98 @@ function LoginPage() {
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.email) {
       errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = "Email format is invalid";
     }
-    
+
     if (!formData.password) {
       errors.password = "Password is required";
     } else if (formData.password.length < 6) {
       errors.password = "Password must be at least 6 characters";
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     dispatch(startLoading());
 
     try {
+      console.log("Attempting login with:", formData);
       const response = await loginUser(formData);
+      console.log("Login response:", response);
       
-      // 🔍 Debug the response structure
-      console.log("=== LOGIN RESPONSE DEBUG ===");
-      console.log("Full response:", response);
-      console.log("Response data:", response.data);
-      console.log("Response data.data:", response.data.data);
-      console.log("========================");
-      
-      // 🚨 FIX: Extract the correct user data
       let userData;
-      
-      // Try different possible data structures
-      if (response.data.data) {
+
+      if (response.data?.data) {
         userData = response.data.data;
-      } else if (response.data.user) {
+      } else if (response.data?.user) {
         userData = response.data.user;
-      } else if (response.data && typeof response.data === 'object') {
-        // If the user data is directly in response.data
+      } else if (response.data && typeof response.data === "object") {
         userData = response.data;
       } else {
-        throw new Error("Invalid response structure");
+        throw new Error("Invalid response structure from server");
       }
-      
-      console.log("🔧 User data being dispatched:", userData);
-      console.log("🔧 User properties check:");
-      console.log("- ID:", userData.id);
-      console.log("- FirstName:", userData.firstName);
-      console.log("- LastName:", userData.lastName);
-      console.log("- Email:", userData.email);
-      console.log("- Role:", userData.role);
-      console.log("- Phone:", userData.phoneNumber);
-      
-      // 🚨 FIX: Only dispatch if we have valid user data with required fields
-      if (!userData.id || !userData.email) {
+
+      if (!userData?.id || !userData?.email) {
+        console.error("Missing required user data in response:", userData);
         throw new Error("Invalid user data received from server");
       }
-      
-      // Dispatch the correct user data
+
       dispatch(authSuccess(userData));
+      // localStorage.setItem("user", JSON.stringify(action.payload));
+
       
-      // Navigate to OTP page with complete user data
-      navigate("/send/otp", { 
-        state: { 
-          email: formData.email, 
-          user: userData 
-        } 
+      if (!userData.isVerified) {
+        console.log("User not verified, redirecting to OTP");
+        navigate("/send/otp", {
+          state: {
+            email: formData.email,
+            user: userData,
+          },
+        });
+        await sendOtp(formData.email);
+      } else {
+        console.log("User already verified, redirecting to home");
+        navigate("/");
+      }
+    } catch (err) {
+      console.error("Login error:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        config: {
+          url: err.config?.url,
+          method: err.config?.method,
+          data: err.config?.data
+        }
       });
       
-      console.log("🔧 Navigating to OTP with user data:", userData);
+      let errorMessage = "Login failed. Please try again.";
       
-      // Send OTP
-      await sendOtp(formData.email);
+      if (err.response) {
+        // Server responded with error status code
+        errorMessage = err.response.data?.message || 
+                      `Server error: ${err.response.status} - ${err.response.statusText}`;
+      } else if (err.request) {
+        // Request was made but no response received
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        // Something happened in setting up the request
+        errorMessage = `Request error: ${err.message}`;
+      }
       
-    } catch (err) {
-      console.error("Login error:", err);
-      dispatch(authFailure(err.response?.data?.message || err.message));
+      dispatch(authFailure(errorMessage));
     }
   };
 
@@ -144,12 +152,14 @@ function LoginPage() {
                 onChange={handleChange}
                 placeholder={`Enter your ${field}`}
                 className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
-                  validationErrors[field] ? 'border-red-500' : 'border-gray-300'
+                  validationErrors[field] ? "border-red-500" : "border-gray-300"
                 }`}
                 required
               />
               {validationErrors[field] && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors[field]}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {validationErrors[field]}
+                </p>
               )}
             </div>
           ))}
@@ -171,7 +181,7 @@ function LoginPage() {
           >
             {loading ? "Signing in..." : "Login"}
           </button>
-          
+
           <div className="mt-4 text-center">
             <p className="text-gray-400">
               Don't have an account?{" "}

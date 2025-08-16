@@ -6,15 +6,28 @@ import { logout } from "../features/Auth/AuthSlice";
 function NavBar() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
-  const user  = useSelector((state) => state.auth.user)
+  const user = useSelector((state) => state.auth.user);
+  const role = user?.role;
 
   return (
     <div className="w-full h-22  flex justify-between px-20 items-center">
       <h1 className="text-white text-4xl font-bold">Quick Court</h1>
       <div className="flex justify-center items-center gap-3">
+         {role === "OWNER" ? (
+          <Link to="/myfacilities" className="bg-red-600 p-2 rounded-full font-bold text-white" >My Facilities</Link>
+        ) : (
+          <div />
+        )}
+
+        {role === "OWNER" ? (
+          <Link to="/createfacility" className="bg-red-600 p-2 rounded-full font-bold text-white" >Create Facility</Link>
+        ) : (
+          <div />
+        )}
+
         <Link
           to="/booking"
-          className="text-white gap-2 font-bold flex text-xl bg-green-600 py-2 px-4 rounded-3xl"
+          className="text-white gap-2 font-bold flex  bg-green-600 py-2 px-4 rounded-3xl"
         >
           <i className="ri-calendar-check-line"></i>
           Booking
@@ -28,7 +41,7 @@ function NavBar() {
               {user?.lastName?.[0] || "U"}
             </Link>
             <button
-              onClick={() => dispatch(logout())} 
+              onClick={() => dispatch(logout())}
               className="bg-red-600 text-white px-4 py-2 rounded-3xl hover:bg-red-500"
             >
               Logout

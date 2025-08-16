@@ -47,7 +47,7 @@ function HomePage() {
             Booking Venues
           </h1>
           <Link
-            to="/venues"
+            to="/facility"
             className="text-xl md:text-2xl font-semibold flex items-center gap-2 hover:text-zinc-300 transition-colors"
           >
             See all venues

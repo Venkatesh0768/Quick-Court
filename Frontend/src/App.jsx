@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import OtpPage from './pages/OtpPage'
 import ProfilePage from './pages/ProfilePage'
+import FacilityPage from './pages/FacilityPage'
+import CreateFacility from './pages/CreateFacility'
+import MyFacility from './pages/MyFacility'
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
           <Route path='/login' element={<LoginPage/>}></Route>
           <Route path='/signup' element={<SignupPage/>}></Route>
           <Route path='/send/otp' element={<OtpPage/>}></Route>
+          <Route path='/facility' element={<FacilityPage/>}></Route>
+          <Route path='/createfacility' element={<CreateFacility/>}></Route>
+          <Route path='/myfacilities' element={<MyFacility/>}></Route>
       </Routes>
     </div>
   )

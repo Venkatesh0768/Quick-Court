@@ -54,7 +54,7 @@ function OtpPage() {
     try {
       console.log("Verifying OTP:", otp);
       const response = await verifyOtp(email, otp);
-      
+
       let finalUserData;
 
       if (
@@ -80,6 +80,7 @@ function OtpPage() {
       }
 
       dispatch(authSuccess(finalUserData));
+    
 
       navigate("/");
     } catch (err) {
