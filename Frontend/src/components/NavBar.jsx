@@ -11,7 +11,7 @@ function NavBar() {
 
   return (
     <div className="w-full h-22  flex justify-between px-20 items-center">
-      <h1 className="text-white text-4xl font-bold">Quick Court</h1>
+      <Link to="/" className="text-white text-4xl font-bold">Quick Court</Link>
       <div className="flex justify-center items-center gap-3">
          {role === "OWNER" ? (
           <Link to="/myfacilities" className="bg-red-600 p-2 rounded-full font-bold text-white" >My Facilities</Link>
@@ -25,8 +25,14 @@ function NavBar() {
           <div />
         )}
 
+        {role === "OWNER" ? (
+          <Link to="/adminpanel" className="bg-red-600 p-2 rounded-full font-bold text-white" >Admin Panel</Link>
+        ) : (
+          <div />
+        )}
+
         <Link
-          to="/booking"
+          to="/bookings"
           className="text-white gap-2 font-bold flex  bg-green-600 py-2 px-4 rounded-3xl"
         >
           <i className="ri-calendar-check-line"></i>

@@ -1,8 +1,36 @@
+import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import VenuCard from "../components/VenuCard";
 import { Link } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 
 function HomePage() {
+  const [courts, setCourts] = useState({});
+  const [facilities, setFacilities] = useState({});
+
+  useEffect(() => {
+    const fetchCourtsAndFacilities = async () => {
+      try {
+        const courtsResponse = await axiosInstance.get("/courts");
+        const courtsData = courtsResponse.data;
+
+        const facilityIds = [...new Set(courtsData.map((c) => c.facilityId))];
+        const facilityResponses = await Promise.all(
+          facilityIds.map((id) => axiosInstance.get(`/facilities/${id}`))
+        );
+        const facilitiesData = facilityResponses.map((res) => res.data);
+
+        setCourts(courtsData);
+        setFacilities(facilitiesData);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCourtsAndFacilities();
+  }, []);
+
+  console.log(courts);
   return (
     <div className="w-full min-h-screen bg-zinc-900">
       <NavBar />
@@ -47,7 +75,7 @@ function HomePage() {
             Booking Venues
           </h1>
           <Link
-            to="/facility"
+            to="/courts"
             className="text-xl md:text-2xl font-semibold flex items-center gap-2 hover:text-zinc-300 transition-colors"
           >
             See all venues
@@ -56,9 +84,15 @@ function HomePage() {
         </div>
 
         <div className="w-full bg-zinc-900 p-4 md:p-10 flex gap-5 overflow-hidden scrollbar-thin scrollbar-thumb-zinc-600">
-          {Array.from({ length: 9 }, (_, index) => (
-            <VenuCard key={index} />
-          ))}
+          {courts.length > 0 ? (
+            courts.map((court, i) => (
+              <Link key={i} to={`/courtDetails/${court.id}`}>
+                <VenuCard court={court} facility={facilities} />
+              </Link>
+            ))
+          ) : (
+            <h1>Loading.....</h1>
+          )}
         </div>
       </div>
     </div>
