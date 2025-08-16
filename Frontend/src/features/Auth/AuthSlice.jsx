@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Get user safely from localStorage
 const getUserFromStorage = () => {
   try {
     const storedUser = localStorage.getItem("user");
@@ -8,7 +7,6 @@ const getUserFromStorage = () => {
   } catch (error) {
     localStorage.removeItem("user");
     console.log(error);
-
     return null;
   }
 };
@@ -57,10 +55,19 @@ export const authSlice = createSlice({
         localStorage.setItem("user", JSON.stringify(state.user));
       }
     },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
 });
 
-export const { startLoading, authSuccess, authFailure, logout, updateUser } =
-  authSlice.actions;
+export const { 
+  startLoading, 
+  authSuccess, 
+  authFailure, 
+  logout, 
+  updateUser,
+  clearError 
+} = authSlice.actions;
 
 export default authSlice.reducer;

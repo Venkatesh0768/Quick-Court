@@ -15,70 +15,126 @@ import {
   AlertCircle,
   X,
   CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { apiService } from "../utils/UserApis";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+} from 'chart.js';
+import { Bar, Pie, Line } from 'react-chartjs-2';
 
-
-const StatCard = ({ title, value, icon: IconComponent, color }) => (
-  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-gray-600 text-sm font-medium">{title}</p>
-        <p className="text-2xl font-bold text-gray-900 mt-1">
-          {typeof value === "number" ? value.toLocaleString() : value || "0"}
-        </p>
-      </div>
-      <div className={`p-3 rounded-lg ${color}`}>
-        {IconComponent && <IconComponent className="w-6 h-6 text-white" />}
-      </div>
-    </div>
-  </div>
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement
 );
 
-const Modal = ({ isOpen, onClose, children }) => {
+// Helper functions
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const singularize = (s) => (s.endsWith("s") ? s.slice(0, -1) : s);
+
+// Reusable Components
+const StatCard = ({ title, value, icon: Icon, color, loading }) => (
+  <motion.div 
+    whileHover={{ scale: 1.03 }}
+    className={`bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 shadow-xl ${loading ? 'animate-pulse' : ''}`}
+  >
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">{title}</p>
+        <p className="text-3xl font-bold text-white mt-2">
+          {loading ? '--' : (typeof value === "number" ? value.toLocaleString() : value || "0")}
+        </p>
+      </div>
+      <div className={`p-3 rounded-xl ${color} bg-opacity-10 backdrop-blur-sm`}>
+        <Icon className="w-6 h-6" />
+      </div>
+    </div>
+  </motion.div>
+);
+
+const Modal = ({ isOpen, onClose, children, size = "md" }) => {
   if (!isOpen) return null;
+  
+  const sizeClasses = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl"
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`bg-gradient-to-b from-gray-800 to-gray-900 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} border border-gray-700 overflow-hidden`}
+      >
         <div className="p-6 relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
           {children}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => (
-  <Modal isOpen={isOpen} onClose={onClose}>
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, loading }) => (
+  <Modal isOpen={isOpen} onClose={onClose} size="sm">
     <div className="text-center">
-      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-      <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-      <p className="text-sm text-gray-600 mt-2 mb-6">{message}</p>
+      <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-500/20 mb-4">
+        <AlertCircle className="h-6 w-6 text-red-500" />
+      </div>
+      <h3 className="text-lg font-bold text-white">{title}</h3>
+      <p className="text-sm text-gray-400 mt-2 mb-6">{message}</p>
       <div className="flex justify-center gap-4">
-        <button
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={onClose}
-          className="px-6 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200"
+          className="px-6 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
         >
           Cancel
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={onConfirm}
-          className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+          disabled={loading}
+          className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 flex items-center gap-2 transition-colors"
         >
+          {loading && <Loader2 className="animate-spin h-4 w-4" />}
           Confirm
-        </button>
+        </motion.button>
       </div>
     </div>
   </Modal>
 );
 
-const DynamicForm = ({ fields, formData, setFormData, onSubmit, onCancel }) => {
+const DynamicForm = ({ fields, formData, setFormData, onSubmit, onCancel, loading }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -92,7 +148,7 @@ const DynamicForm = ({ fields, formData, setFormData, onSubmit, onCancel }) => {
             <div key={field.name}>
               <label
                 htmlFor={field.name}
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-300 mb-1"
               >
                 {field.label}
               </label>
@@ -101,14 +157,14 @@ const DynamicForm = ({ fields, formData, setFormData, onSubmit, onCancel }) => {
                 id={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-white transition-colors"
                 required={field.required}
               >
-                <option value="" disabled>
+                <option value="" disabled className="text-gray-500">
                   Select a {field.label}
                 </option>
                 {field.options.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.value} value={option.value} className="bg-gray-800">
                     {option.label}
                   </option>
                 ))}
@@ -120,7 +176,7 @@ const DynamicForm = ({ fields, formData, setFormData, onSubmit, onCancel }) => {
           <div key={field.name}>
             <label
               htmlFor={field.name}
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-300 mb-1"
             >
               {field.label}
             </label>
@@ -131,28 +187,134 @@ const DynamicForm = ({ fields, formData, setFormData, onSubmit, onCancel }) => {
               value={formData[field.name] || ""}
               onChange={handleChange}
               placeholder={field.placeholder}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-white transition-colors"
               required={field.required}
             />
           </div>
         );
       })}
       <div className="flex justify-end gap-4 pt-4">
-        <button
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200"
+          className="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
         >
           Cancel
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           type="submit"
-          className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+          disabled={loading}
+          className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500 flex items-center gap-2 transition-colors"
         >
+          {loading && <Loader2 className="animate-spin h-4 w-4" />}
           Save
-        </button>
+        </motion.button>
       </div>
     </form>
+  );
+};
+
+const DataTable = ({ headers, data, onEdit, onDelete, loading, getNestedValue }) => {
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedData = React.useMemo(() => {
+    if (!sortConfig.key) return data;
+    
+    return [...data].sort((a, b) => {
+      const aValue = getNestedValue(a, sortConfig.key);
+      const bValue = getNestedValue(b, sortConfig.key);
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [data, sortConfig, getNestedValue]);
+
+  return (
+    <div className="bg-gray-800/50 rounded-2xl shadow-sm border border-gray-700 overflow-hidden backdrop-blur-sm">
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="animate-spin h-8 w-8 text-green-500" />
+          <span className="ml-2 text-gray-400">Loading data...</span>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full divide-y divide-gray-700/50">
+            <thead className="bg-gray-700/50 backdrop-blur-sm">
+              <tr>
+                {headers.map((header, i) => (
+                  <th
+                    key={i}
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-700 transition-colors"
+                    onClick={() => requestSort(header)}
+                  >
+                    <div className="flex items-center">
+                      {header}
+                      {sortConfig.key === header && (
+                        <span className="ml-1">
+                          {sortConfig.direction === 'asc' ? 
+                            <ChevronUp className="w-4 h-4" /> : 
+                            <ChevronDown className="w-4 h-4" />}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                ))}
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700/50">
+              {sortedData.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-700/30 transition-colors">
+                  {headers.map((header, i) => (
+                    <td
+                      key={i}
+                      className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap"
+                    >
+                      {getNestedValue(item, header)}
+                    </td>
+                  ))}
+                  <td className="px-6 py-4 text-sm whitespace-nowrap">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onEdit(item)}
+                        className="p-2 text-blue-400 hover:text-blue-300 rounded-lg hover:bg-blue-900/20 transition-colors"
+                        aria-label="Edit"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onDelete(item)}
+                        className="p-2 text-red-400 hover:text-red-300 rounded-lg hover:bg-red-900/20 transition-colors"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -169,12 +331,12 @@ function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedItem, setSelectedItem] = useState(null);
   const [formData, setFormData] = useState({});
+  const [actionLoading, setActionLoading] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -192,16 +354,13 @@ function AdminPanel() {
 
       const simulatedBookings = (bookings || []).map((booking, index) => ({
         ...booking,
-        userId:
-          users && users.length > 0 ? users[index % users.length].id : null,
-        courtId:
-          courts && courts.length > 0 ? courts[index % courts.length].id : null,
+        userId: users && users.length > 0 ? users[index % users.length].id : null,
+        courtId: courts && courts.length > 0 ? courts[index % courts.length].id : null,
       }));
 
       const simulatedMatches = (matches || []).map((match, index) => ({
         ...match,
-        courtId:
-          courts && courts.length > 0 ? courts[index % courts.length].id : null,
+        courtId: courts && courts.length > 0 ? courts[index % courts.length].id : null,
       }));
 
       setData({
@@ -214,7 +373,7 @@ function AdminPanel() {
       });
     } catch (err) {
       console.error("Error loading data:", err);
-      setError(`Failed to load data. Please check the console for details.`);
+      setError(`Failed to load data. Please try again later.`);
     } finally {
       setLoading(false);
     }
@@ -224,8 +383,52 @@ function AdminPanel() {
     loadData();
   }, [loadData]);
 
-  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-  const singularize = (s) => (s.endsWith("s") ? s.slice(0, -1) : s);
+  const getNestedValue = (item, header) => {
+    const key = header.toLowerCase().replace(/ /g, "");
+    switch (key) {
+      case "name":
+        return item.firstName
+          ? `${item.firstName} ${item.lastName}`
+          : item.name;
+      case "createdat":
+      case "date":
+        return item.createdAt
+          ? new Date(item.createdAt).toLocaleDateString()
+          : item.date
+          ? new Date(item.date).toLocaleDateString()
+          : "N/A";
+      case "price/hour":
+        return item.pricePerHour != null
+          ? `₹${Number(item.pricePerHour).toFixed(2)}`
+          : "N/A";
+      case "facility": {
+        const facility = data.facilities.find((f) => f.id === item.facilityId);
+        return facility?.name || item.facilityId || "N/A";
+      }
+      case "court": {
+        const court = data.courts.find((c) => c.id === item.courtId);
+        return court?.name || item.courtId || "N/A";
+      }
+      case "user": {
+        const user = data.users.find((u) => u.id === item.userId);
+        return user
+          ? `${user.firstName} ${user.lastName}`
+          : item.userId || "N/A";
+      }
+      case "time":
+        return item.startTime && item.endTime
+          ? `${item.startTime.substring(0, 5)} - ${item.endTime.substring(0, 5)}`
+          : "N/A";
+      case "players":
+        return `${item.currentPlayers || 0} / ${item.maxPlayers || 0}`;
+      case "rating":
+        return item.rating ? `${item.rating} / 5` : "N/A";
+      case "comment":
+        return item.comment ? `${item.comment.substring(0, 30)}${item.comment.length > 30 ? '...' : ''}` : "N/A";
+      default:
+        return item[key] ?? "N/A";
+    }
+  };
 
   const handleOpenAddModal = () => {
     setModalMode("add");
@@ -251,38 +454,42 @@ function AdminPanel() {
     setIsConfirmModalOpen(false);
     setSelectedItem(null);
     setFormData({});
+    setActionLoading(false);
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setActionLoading(true);
     const entity = singularize(activeTab);
     try {
       if (modalMode === "add") {
         await apiService[`create${capitalize(entity)}`](formData);
       } else {
-        await apiService[`update${capitalize(entity)}`](
-          selectedItem.id,
-          formData
-        );
+        await apiService[`update${capitalize(entity)}`](selectedItem.id, formData);
       }
-      loadData(); // Refresh all data after a change
+      await loadData();
       handleCloseModals();
     } catch (error) {
       console.error(`Error saving ${entity}:`, error);
-      alert(`Failed to save. Please check console for details.`);
+      setError(`Failed to save ${entity}. Please try again.`);
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleDeleteConfirm = async () => {
+    setActionLoading(true);
     if (!selectedItem) return;
     const entity = singularize(activeTab);
     try {
       await apiService[`delete${capitalize(entity)}`](selectedItem.id);
-      loadData(); // Refresh all data after a change
+      await loadData();
       handleCloseModals();
     } catch (error) {
       console.error(`Error deleting ${entity}:`, error);
-      alert(`Failed to delete. Please check console for details.`);
+      setError(`Failed to delete ${entity}. Please try again.`);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -356,19 +563,19 @@ function AdminPanel() {
       case "bookings":
         return {
           headers: ["User", "Court", "Date", "Time", "Status"],
-          fields: [], // Bookings are not editable/creatable from this panel
+          fields: [],
           data: currentData,
         };
       case "matches":
         return {
           headers: ["Court", "Date", "Time", "Players", "Status"],
-          fields: [], // Matches are not editable/creatable from this panel
+          fields: [],
           data: currentData,
         };
       case "reviews":
         return {
           headers: ["User", "Facility", "Rating", "Comment", "Date"],
-          fields: [], // Reviews cannot be created/edited
+          fields: [],
           data: currentData,
         };
       default:
@@ -376,126 +583,172 @@ function AdminPanel() {
     }
   };
 
-  const tableConfig = getTableConfig(activeTab);
-
-  const getNestedValue = (item, header) => {
-    const key = header.toLowerCase().replace(/ /g, "");
-    switch (key) {
-      case "name":
-        return item.firstName
-          ? `${item.firstName} ${item.lastName}`
-          : item.name;
-      case "createdat":
-      case "date":
-        return item.createdAt
-          ? new Date(item.createdAt).toLocaleDateString()
-          : item.date
-          ? new Date(item.date).toLocaleDateString()
-          : "N/A";
-      case "price/hour":
-        return item.pricePerHour != null
-          ? `Rs ${Number(item.pricePerHour).toFixed(2)}`
-          : "N/A";
-      case "facility": {
-        const facility = data.facilities.find((f) => f.id === item.facilityId);
-        return facility?.name || item.facilityId || "N/A";
+  const prepareBookingDataByMonth = (bookings) => {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    const monthlyCounts = Array(12).fill(0);
+    
+    bookings.forEach(booking => {
+      if (booking.createdAt) {
+        const month = new Date(booking.createdAt).getMonth();
+        monthlyCounts[month]++;
       }
-      case "court": {
-        const court = data.courts.find((c) => c.id === item.courtId);
-        return court?.name || item.courtId || "N/A";
-      }
-      case "user": {
-        const user = data.users.find((u) => u.id === item.userId);
-        return user
-          ? `${user.firstName} ${user.lastName}`
-          : item.userId || "N/A";
-      }
-      case "time":
-        return item.startTime && item.endTime
-          ? `${item.startTime.substring(0, 5)} - ${item.endTime.substring(
-              0,
-              5
-            )}`
-          : "N/A";
-      case "players":
-        return `${item.currentPlayers || 0} / ${item.maxPlayers || 0}`;
-      case "rating":
-        return item.rating ? `${item.rating} / 5` : "N/A";
-      default:
-        return item[key] ?? "N/A";
-    }
+    });
+    
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: 'Bookings',
+          data: monthlyCounts,
+          borderColor: 'rgb(79, 70, 229)',
+          backgroundColor: 'rgba(79, 70, 229, 0.5)',
+          tension: 0.3
+        }
+      ]
+    };
   };
 
-  const DataTable = ({ headers, data: tableData, onEdit, onDelete }) => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              {headers.map((h, i) => (
-                <th
-                  key={i}
-                  className="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider"
-                >
-                  {h}
-                </th>
-              ))}
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {tableData.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                {headers.map((header, i) => (
-                  <td
-                    key={i}
-                    className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap"
-                  >
-                    {getNestedValue(item, header)}
-                  </td>
-                ))}
-                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                  <div className="flex gap-2">
-                    {tableConfig.fields.length > 0 && (
-                      <button
-                        onClick={() => onEdit(item)}
-                        className="p-1 text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => onDelete(item)}
-                      className="p-1 text-red-600 hover:text-red-800"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const prepareUserGrowthData = (users) => {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    const monthlyCounts = Array(12).fill(0);
+    let cumulativeCount = 0;
+    
+    users.forEach(user => {
+      if (user.createdAt) {
+        const month = new Date(user.createdAt).getMonth();
+        monthlyCounts[month]++;
+      }
+    });
+    
+    const cumulativeData = monthlyCounts.map(count => {
+      cumulativeCount += count;
+      return cumulativeCount;
+    });
+    
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: 'Total Users',
+          data: cumulativeData,
+          borderColor: 'rgb(16, 185, 129)',
+          backgroundColor: 'rgba(16, 185, 129, 0.5)',
+          tension: 0.3
+        }
+      ]
+    };
+  };
+
+  const prepareRevenueByFacility = (bookings, courts, facilities) => {
+    const facilityRevenue = {};
+    
+    bookings.forEach(booking => {
+      const court = courts.find(c => c.id === booking.courtId);
+      if (court && court.facilityId && booking.duration && court.pricePerHour) {
+        const revenue = (court.pricePerHour / 60) * booking.duration;
+        facilityRevenue[court.facilityId] = (facilityRevenue[court.facilityId] || 0) + revenue;
+      }
+    });
+    
+    const facilityNames = [];
+    const revenueData = [];
+    
+    Object.entries(facilityRevenue).forEach(([facilityId, revenue]) => {
+      const facility = facilities.find(f => f.id === facilityId);
+      if (facility) {
+        facilityNames.push(facility.name);
+        revenueData.push(revenue);
+      }
+    });
+    
+    return {
+      labels: facilityNames,
+      datasets: [
+        {
+          label: 'Revenue (₹)',
+          data: revenueData,
+          backgroundColor: 'rgba(99, 102, 241, 0.7)',
+          borderColor: 'rgba(99, 102, 241, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+  };
+
+  const prepareSportPopularity = (courts, bookings) => {
+    const sportCounts = {};
+    
+    bookings.forEach(booking => {
+      const court = courts.find(c => c.id === booking.courtId);
+      if (court && court.sportType) {
+        sportCounts[court.sportType] = (sportCounts[court.sportType] || 0) + 1;
+      }
+    });
+    
+    const sportTypes = Object.keys(sportCounts);
+    const counts = Object.values(sportCounts);
+    
+    const backgroundColors = [
+      'rgba(255, 99, 132, 0.7)',
+      'rgba(54, 162, 235, 0.7)',
+      'rgba(255, 206, 86, 0.7)',
+      'rgba(75, 192, 192, 0.7)',
+      'rgba(153, 102, 255, 0.7)',
+      'rgba(255, 159, 64, 0.7)'
+    ];
+    
+    return {
+      labels: sportTypes,
+      datasets: [
+        {
+          label: 'Bookings by Sport',
+          data: counts,
+          backgroundColor: backgroundColors.slice(0, sportTypes.length),
+          borderColor: backgroundColors.map(c => c.replace('0.7', '1')).slice(0, sportTypes.length),
+          borderWidth: 1
+        }
+      ]
+    };
+  };
 
   const renderContent = () => {
-    if (loading)
+    if (loading) {
       return (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <Loader2 className="animate-spin h-12 w-12 text-green-500" />
+          <span className="ml-2 text-gray-400">Loading dashboard...</span>
         </div>
       );
-    if (error)
+    }
+
+    if (error) {
       return (
-        <div className="text-center text-red-600 p-8">
-          <AlertCircle className="mx-auto w-12 h-12 mb-4" />
-          {error}
+        <div className="text-center p-8">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-500/20 mb-4">
+            <AlertCircle className="h-6 w-6 text-red-500" />
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">Error Loading Data</h3>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={loadData}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg mx-auto transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </motion.button>
         </div>
       );
+    }
 
     if (activeTab === "dashboard") {
       const { users, facilities, courts, bookings, matches, reviews } = data;
@@ -508,75 +761,238 @@ function AdminPanel() {
         return acc;
       }, 0);
 
+      const bookingDataByMonth = prepareBookingDataByMonth(bookings);
+      const userGrowthData = prepareUserGrowthData(users);
+      const revenueByFacility = prepareRevenueByFacility(bookings, courts, facilities);
+      const sportPopularity = prepareSportPopularity(courts, bookings);
+
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Users"
-            value={users.length}
-            icon={Users}
-            color="bg-blue-500"
-          />
-          <StatCard
-            title="Total Facilities"
-            value={facilities.length}
-            icon={Building2}
-            color="bg-green-500"
-          />
-          <StatCard
-            title="Active Courts"
-            value={courts.length}
-            icon={MapPin}
-            color="bg-purple-500"
-          />
-          <StatCard
-            title="Total Bookings"
-            value={bookings.length}
-            icon={Calendar}
-            color="bg-orange-500"
-          />
-          <StatCard
-            title="Total Matches"
-            value={matches.length}
-            icon={Trophy}
-            color="bg-indigo-500"
-          />
-          <StatCard
-            title="Total Reviews"
-            value={reviews.length}
-            icon={Star}
-            color="bg-yellow-500"
-          />
-          <StatCard
-            title="Total Revenue"
-            value={`Rs ${(totalRevenue || 0).toLocaleString()}`}
-            icon={BarChart3}
-            color="bg-red-500"
-          />
+        <div className="space-y-8">
+          {/* Stats Cards Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <StatCard
+              title="Total Users"
+              value={users.length}
+              icon={Users}
+              color="text-blue-400"
+              loading={loading}
+            />
+            <StatCard
+              title="Total Facilities"
+              value={facilities.length}
+              icon={Building2}
+              color="text-green-400"
+              loading={loading}
+            />
+            <StatCard
+              title="Active Courts"
+              value={courts.length}
+              icon={MapPin}
+              color="text-purple-400"
+              loading={loading}
+            />
+            <StatCard
+              title="Total Bookings"
+              value={bookings.length}
+              icon={Calendar}
+              color="text-orange-400"
+              loading={loading}
+            />
+            <StatCard
+              title="Total Matches"
+              value={matches.length}
+              icon={Trophy}
+              color="text-indigo-400"
+              loading={loading}
+            />
+            <StatCard
+              title="Total Reviews"
+              value={reviews.length}
+              icon={Star}
+              color="text-yellow-400"
+              loading={loading}
+            />
+            <StatCard
+              title="Total Revenue"
+              value={`₹${(totalRevenue || 0).toLocaleString()}`}
+              icon={BarChart3}
+              color="text-red-400"
+              loading={loading}
+            />
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Bookings by Month */}
+            <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-white mb-4">Bookings by Month</h3>
+              <div className="h-80">
+                <Line
+                  data={bookingDataByMonth}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                        labels: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                    },
+                    scales: {
+                      x: {
+                        grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                      y: {
+                        grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                          color: '#e5e7eb'
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* User Growth */}
+            <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-white mb-4">User Growth</h3>
+              <div className="h-80">
+                <Line
+                  data={userGrowthData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                        labels: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                    },
+                    scales: {
+                      x: {
+                        grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                      y: {
+                        grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                          color: '#e5e7eb'
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Revenue by Facility */}
+            <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-white mb-4">Revenue by Facility</h3>
+              <div className="h-80">
+                <Bar
+                  data={revenueByFacility}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                        labels: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                    },
+                    scales: {
+                      x: {
+                        grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                      y: {
+                        grid: {
+                          color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                          color: '#e5e7eb'
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Sport Popularity */}
+            <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-white mb-4">Sport Popularity</h3>
+              <div className="h-80">
+                <Pie
+                  data={sportPopularity}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'right',
+                        labels: {
+                          color: '#e5e7eb'
+                        }
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
 
+    const tableConfig = getTableConfig(activeTab);
+
     return (
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="relative">
+          <div className="relative flex-1 max-w-md">
             <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder={`Search ${activeTab}...`}
-              className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-white transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           {tableConfig.fields.length > 0 && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleOpenAddModal}
-              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition-colors"
             >
-              <Plus className="w-5 h-5" /> Add New{" "}
-              {singularize(capitalize(activeTab))}
-            </button>
+              <Plus className="w-5 h-5" /> Add New {singularize(capitalize(activeTab))}
+            </motion.button>
           )}
         </div>
         <DataTable
@@ -584,71 +1000,93 @@ function AdminPanel() {
           data={tableConfig.data}
           onEdit={handleOpenEditModal}
           onDelete={handleOpenDeleteModal}
+          loading={loading}
+          getNestedValue={getNestedValue}
         />
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
-        <div className="flex items-center justify-center h-16 bg-green-600">
-          <h1 className="text-xl font-bold text-white">QuickCourt Admin</h1>
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Sidebar */}
+      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 shadow-lg border-r border-gray-700">
+        <div className="flex items-center justify-center h-16 bg-gradient-to-r from-green-600 to-green-500">
+          <h1 className="text-xl font-bold">QuickCourt Admin</h1>
         </div>
-        <nav className="mt-8 px-4 space-y-2">
+        <nav className="mt-8 px-4 space-y-1">
           {menuItems.map((item) => (
-            <button
+            <motion.button
               key={item.id}
+              whileHover={{ x: 5 }}
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                 activeTab === item.id
-                  ? "bg-green-50 text-green-600 font-semibold"
-                  : "text-gray-600 hover:bg-gray-50"
+                  ? "bg-gray-700 text-green-400 font-semibold"
+                  : "text-gray-300 hover:bg-gray-700"
               }`}
             >
               <item.icon className="w-5 h-5 mr-3" />
               {item.label}
-            </button>
+            </motion.button>
           ))}
         </nav>
       </div>
 
+      {/* Main Content */}
       <div className="ml-64">
-        <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
+        {/* Header */}
+        <header className="bg-gray-800/50 shadow-sm border-b border-gray-700 sticky top-0 z-40 backdrop-blur-sm">
           <div className="px-6 py-4 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-gray-900 capitalize">
-              {activeTab === "dashboard"
-                ? "Dashboard"
-                : `${activeTab} Management`}
+            <h1 className="text-2xl font-semibold capitalize">
+              {activeTab === "dashboard" ? "Dashboard" : `${activeTab} Management`}
             </h1>
             <div className="flex items-center gap-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={loadData}
-                className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm"
+                className="flex items-center gap-2 bg-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-600 text-sm transition-colors"
               >
-                Refresh Data
-              </button>
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </motion.button>
               <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">A</span>
+                <span className="font-bold">A</span>
               </div>
             </div>
           </div>
         </header>
 
-        <main className="p-6">{renderContent()}</main>
+        {/* Content */}
+        <main className="p-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
       </div>
 
-      <Modal isOpen={isFormModalOpen} onClose={handleCloseModals}>
-        <h3 className="text-lg font-bold text-gray-900 mb-4">
+      {/* Modals */}
+      <Modal isOpen={isFormModalOpen} onClose={handleCloseModals} size="lg">
+        <h3 className="text-lg font-bold text-white mb-4">
           {modalMode === "add" ? "Add New" : "Edit"}{" "}
           {singularize(capitalize(activeTab))}
         </h3>
         <DynamicForm
-          fields={tableConfig.fields}
+          fields={getTableConfig(activeTab).fields}
           formData={formData}
           setFormData={setFormData}
           onSubmit={handleFormSubmit}
           onCancel={handleCloseModals}
+          loading={actionLoading}
         />
       </Modal>
 
@@ -660,6 +1098,7 @@ function AdminPanel() {
         message={`Are you sure you want to delete this ${singularize(
           activeTab
         )}? This action cannot be undone.`}
+        loading={actionLoading}
       />
     </div>
   );

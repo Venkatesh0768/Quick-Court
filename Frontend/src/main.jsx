@@ -6,7 +6,6 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import store from "./app/strore.jsx";
 
-
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <BrowserRouter>
