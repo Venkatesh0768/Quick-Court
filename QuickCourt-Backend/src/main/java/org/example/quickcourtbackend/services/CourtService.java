@@ -33,7 +33,7 @@ public class CourtService {
         court.setSportType(SportType.valueOf(dto.getSportType()));
         court.setPricePerHour(dto.getPricePerHour());
         court.setOperatingHours(dto.getOperatingHours());
-
+        court.setPhotoUrl(dto.getPhotoUrl());
         Court saved = courtRepository.save(court);
         return mapToResponseDto(saved);
     }
@@ -64,6 +64,7 @@ public class CourtService {
         court.setSportType(SportType.valueOf(dto.getSportType()));
         court.setPricePerHour(dto.getPricePerHour());
         court.setOperatingHours(dto.getOperatingHours());
+        court.setPhotoUrl(dto.getPhotoUrl());
 
         Court updated = courtRepository.save(court);
         return mapToResponseDto(updated);
@@ -82,6 +83,7 @@ public class CourtService {
         dto.setSportType(court.getSportType().name());
         dto.setPricePerHour(court.getPricePerHour());
         dto.setOperatingHours(court.getOperatingHours());
+        dto.setPhotoUrl(court.getPhotoUrl());
 
         dto.setAvailabilityIds(court.getAvailabilities() != null ?
                 court.getAvailabilities().stream().map(Availability::getId).collect(Collectors.toList()) : null);

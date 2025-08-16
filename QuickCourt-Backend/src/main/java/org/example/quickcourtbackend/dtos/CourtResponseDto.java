@@ -22,6 +22,7 @@ public class CourtResponseDto {
     private List<String> availabilityIds;
     private List<String> bookingIds;
     private List<String> matchIds;
+    private String photoUrl;
 
     // Getters & Setters
 }

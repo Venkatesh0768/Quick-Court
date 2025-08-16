@@ -16,6 +16,7 @@ public class CourtRequestDto {
     private String sportType;    // Enum as String
     private Double pricePerHour;
     private String operatingHours;
+    private String photoUrl;
     private List<String> availabilityIds; // Optional
     private List<String> bookingIds;      // Optional
     private List<String> matchIds;        // Optional
