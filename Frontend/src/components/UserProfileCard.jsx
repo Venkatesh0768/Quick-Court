@@ -74,7 +74,7 @@ function UserProfileCard({ user }) {
             <i className="ri-hashtag text-gray-400"></i>
             <div>
               <p className="text-sm text-gray-400">User ID</p>
-              <p className="font-medium text-xs">{user.id}</p>
+              <p className="font-medium text-xs">{user?.firstName}</p>
             </div>
           </div>
         )}
