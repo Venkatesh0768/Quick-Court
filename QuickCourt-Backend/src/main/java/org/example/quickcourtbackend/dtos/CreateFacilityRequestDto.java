@@ -1,13 +1,14 @@
 package org.example.quickcourtbackend.dtos;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
-
+@Data
 public class CreateFacilityRequestDto {
     private String ownerId;
     private String name;

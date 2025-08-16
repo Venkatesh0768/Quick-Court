@@ -9,6 +9,7 @@ import org.example.quickcourtbackend.dtos.FacilityResponseDto;
 import org.example.quickcourtbackend.dtos.UpdateFacilityRequestDto;
 import org.example.quickcourtbackend.repositories.FacilityRepository;
 import org.example.quickcourtbackend.repositories.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +27,22 @@ public class FacilityService {
         this.userRepository = userRepository;
     }
 
-    public Facility createFacility(Facility facility) {
-        facility.setVerificationStatus(VerificationStatus.PENDING);
+    public Facility createFacility(CreateFacilityRequestDto requestDto) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Facility facility = new Facility();
+        facility.setOwner(user);
+        facility.setName(requestDto.getName());
+        facility.setDescription(requestDto.getDescription());
+        facility.setCity(requestDto.getCity());
+        facility.setState(requestDto.getState());
+        facility.setAddress(requestDto.getAddress());
+        facility.setLatitude(requestDto.getLatitude());
+        facility.setLongitude(requestDto.getLongitude());
+        facility.setZipCode(requestDto.getZipCode());
+
         return facilityRepository.save(facility);
     }
 

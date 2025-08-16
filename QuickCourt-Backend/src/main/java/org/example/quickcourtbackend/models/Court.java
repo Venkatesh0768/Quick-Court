@@ -1,6 +1,7 @@
 package org.example.quickcourtbackend.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -19,7 +20,7 @@ import java.util.List;
 public class Court extends BaseModel {
 
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name = "facility_id", nullable = false)
     private Facility facility;
 

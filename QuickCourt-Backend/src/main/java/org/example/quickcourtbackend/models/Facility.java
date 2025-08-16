@@ -42,15 +42,9 @@ public class Facility extends BaseModel {
     private Double latitude;
     private Double longitude;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VerificationStatus verificationStatus;
-
-
     @JsonManagedReference
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
-
 
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;

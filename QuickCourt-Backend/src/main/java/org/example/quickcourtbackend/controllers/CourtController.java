@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/courts")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class CourtController {
 
     @Autowired

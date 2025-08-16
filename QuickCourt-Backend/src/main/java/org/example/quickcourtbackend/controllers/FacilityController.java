@@ -1,8 +1,6 @@
 package org.example.quickcourtbackend.controllers;
 
 import org.example.quickcourtbackend.dtos.CreateFacilityRequestDto;
-import org.example.quickcourtbackend.dtos.FacilityResponseDto;
-import org.example.quickcourtbackend.dtos.UpdateFacilityRequestDto;
 import org.example.quickcourtbackend.models.Facility;
 import org.example.quickcourtbackend.services.FacilityService;
 import org.springframework.http.HttpStatus;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequestMapping("/api/v1/facilities")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class FacilityController {
 
     private final FacilityService facilityService;
@@ -21,7 +20,7 @@ public class FacilityController {
     }
 
     @PostMapping
-    public ResponseEntity<Facility> createFacility(@RequestBody Facility facility) {
+    public ResponseEntity<Facility> createFacility(@RequestBody CreateFacilityRequestDto facility) {
         Facility created = facilityService.createFacility(facility);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
