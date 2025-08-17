@@ -25,7 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Slf4j
-@CrossOrigin(origins = "https://quick-court.vercel.app", allowCredentials = "true")
+@CrossOrigin(origins = {"https://quick-court.vercel.app" , "http://localhost:3000"} , allowCredentials = "true")
 public class AuthController {
 
     private final AuthService service;

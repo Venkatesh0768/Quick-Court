@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequestMapping("/api/v1/facilities")
-@CrossOrigin(origins = "https://quick-court.vercel.app", allowCredentials = "true")
+@CrossOrigin(origins = {"https://quick-court.vercel.app" , "http://localhost:3000"} , allowCredentials = "true")
 public class FacilityController {
 
     private final FacilityService facilityService;
