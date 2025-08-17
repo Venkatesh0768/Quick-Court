@@ -1,0 +1,11 @@
+.gradle/
+build/
+!build/libs/*.jar
+.git/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.log
+.env
