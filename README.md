@@ -130,4 +130,6 @@ MYSQL_PORT=3307
 
 <img width="1915" height="946" alt="Screenshot 2025-08-16 210603" src="https://github.com/user-attachments/assets/406bc01f-d182-439a-879c-6aa38cebf6db" />
 
+<img width="1919" height="930" alt="image" src="https://github.com/user-attachments/assets/bfb49492-a021-4387-8825-66eb359b56b0" />
+
 
