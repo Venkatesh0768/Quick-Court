@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://quick-court.vercel.app", allowCredentials = "true")
 public class BookingController {
 
     @Autowired
