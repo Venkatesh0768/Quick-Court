@@ -3,9 +3,10 @@ spring:
     name: QuickCourt-Backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/quickcourt
+    url: jdbc:mysql://quickcourt-quickcourt.c.aivencloud.com:26189/defaultdb?ssl-mode=REQUIRED
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password123}   # default is optional
+    password: ${DB_PASSWORD:password123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     show-sql: false
