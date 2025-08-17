@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1",
+  baseURL:"https://quick-court-1-230n.onrender.com/api/v1",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
