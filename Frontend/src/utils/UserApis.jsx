@@ -1,4 +1,3 @@
-// src/api/api.js
 import axiosInstance from "../utils/axios";
 
 // -------------------- AUTH --------------------
@@ -29,20 +28,7 @@ export const updateUser = (userId, data) =>
 // Delete user
 export const deleteUser = (userId) => axiosInstance.delete(`/users/${userId}`);
 
-
-
-
-
-
-
-
-
-
-
-
-
 export const apiService = {
-  // Auth
   login: (credentials) => axiosInstance.post('/auth/login', credentials).then(res => {
     if (res.data.token) {
         localStorage.setItem('authToken', res.data.token);

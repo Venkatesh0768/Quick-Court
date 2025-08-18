@@ -49,11 +49,10 @@ ChartJS.register(
   LineElement
 );
 
-// Helper functions
+
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const singularize = (s) => (s.endsWith("s") ? s.slice(0, -1) : s);
 
-// Reusable Components
 const StatCard = ({ title, value, icon: Icon, color, loading }) => (
   <motion.div 
     whileHover={{ scale: 1.03 }}

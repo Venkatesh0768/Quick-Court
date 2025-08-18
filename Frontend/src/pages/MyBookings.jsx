@@ -63,10 +63,9 @@ function MyBookings() {
     fetchUserDetails();
   }, [user]);
 
-  if (loading) {
+    if (loading) {
     return (
-      <div className="w-full min-h-screen bg-zinc-900 text-white flex items-center justify-center">
-        <NavBar />
+      <div className="w-full min-h-screen bg-zinc-900 text-white flex items-center justify-center flex-col">
         <div className="animate-pulse text-center">
           <div className="h-12 w-12 bg-green-600 rounded-full mx-auto mb-4"></div>
           <p>Loading your bookings...</p>
@@ -104,7 +103,7 @@ function MyBookings() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-zinc-900 text-white">
+    <div className="w-full min-h-screen bg-zinc-900 text-white ">
       <NavBar />
 
       <div className="max-w-5xl mx-auto mt-10 p-4 sm:p-6 bg-zinc-800 rounded-2xl shadow-lg">

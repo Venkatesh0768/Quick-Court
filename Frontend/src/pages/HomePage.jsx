@@ -51,7 +51,7 @@ function HomePage() {
     : courts.filter(court => court.sportType?.toLowerCase() === activeSport);
 
   return (
-    <div className="w-full min-h-screen bg-gray-900 text-white">
+    <div className="w-full min-h-screen bg-gray-900 text-white ">
       <NavBar />
 
       {/* Hero Section */}
